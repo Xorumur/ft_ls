@@ -39,6 +39,37 @@ t_list *getFiles(char *dirName) {
     return files;
 }
 
+t_list *getDirectories(t_list *files) {
+    t_list *tmp = files;
+    t_list *dir = NULL;
+    while (tmp) {
+        t_file *file = (t_file *)tmp->content;
+        if (S_ISDIR(file->st.st_mode) \
+            && ft_strcmp(file->name, ".") != 0 \
+            && ft_strcmp(file->name, "..") != 0)
+        {
+            // ft_lstadd_back(&dir, ft_lstnew(tmp->content));
+            ft_lstadd_back(&dir, ft_lstnew(file));
+        }
+        tmp = tmp->next;
+    }
+
+    return dir;
+}
+
+t_list *loopDiscovery(t_list *dirFiles, char *dirName) {
+    t_list *files = getFiles(dirName);
+    ft_lstadd_back(&dirFiles, ft_lstnew(files));
+    t_list *dir = getDirectories(files);
+    print_list(dir, print_string);
+    while (dir) {
+        t_file *current = (t_file*)dir->content;
+        ft_lstadd_back(&dirFiles, loopDiscovery(dirFiles, current->path));
+        dir = dir->next;
+    }
+    return dirFiles;
+}
+
 void dirDiscovery(t_cmd *cmd) {
     t_list *tmp = cmd->dirList;
 
@@ -47,11 +78,15 @@ void dirDiscovery(t_cmd *cmd) {
     }
     else {
         while(tmp) {
-            t_list *files = getFiles((char *)tmp->content);
-            print_list(files, print_file);
+            // t_list *files = getFiles((char *)tmp->content);
+            // print_list(files, print_file);
+            if (cmd->opt->recursive) {
+                t_list *arch = NULL;
+                loopDiscovery(arch, (char *)tmp->content);
+                // print_list(loopDiscovery(arch, (char *)tmp->content), print_file);
+            }
             tmp = tmp->next;
         }
     }
-
     return;
 }
