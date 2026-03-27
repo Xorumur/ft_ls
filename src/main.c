@@ -10,5 +10,7 @@ int main(int ac, char **av) {
     if (err > 0)
         return err;
 
-    dirDiscovery(cmd);
-}   
+    t_list *files = dirDiscovery(cmd);
+    (void)files;
+    // print_list(files, print_ls_long);
+}

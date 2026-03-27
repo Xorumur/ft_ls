@@ -27,6 +27,9 @@ t_list *getFiles(char *dirName) {
     dir = opendir(dirName);
     if (dir != NULL) {
         while ((entry = readdir(dir))) {
+            // TO DO If -a options is on, disable this if
+            if (!ft_strcmp(entry->d_name, ".") || !ft_strcmp(entry->d_name, ".."))
+                continue; 
             char *tmp_path = ft_strjoin(dirName, "/");
             char *path = ft_strjoin(tmp_path, entry->d_name);
             ft_lstadd_back(&files, ft_lstnew(fileStats(path, entry->d_name)));
@@ -44,11 +47,8 @@ t_list *getDirectories(t_list *files) {
     t_list *dir = NULL;
     while (tmp) {
         t_file *file = (t_file *)tmp->content;
-        if (S_ISDIR(file->st.st_mode) \
-            && ft_strcmp(file->name, ".") != 0 \
-            && ft_strcmp(file->name, "..") != 0)
+        if (S_ISDIR(file->st.st_mode))
         {
-            // ft_lstadd_back(&dir, ft_lstnew(tmp->content));
             ft_lstadd_back(&dir, ft_lstnew(file));
         }
         tmp = tmp->next;
@@ -57,36 +57,76 @@ t_list *getDirectories(t_list *files) {
     return dir;
 }
 
-t_list *loopDiscovery(t_list *dirFiles, char *dirName) {
-    t_list *files = getFiles(dirName);
-    ft_lstadd_back(&dirFiles, ft_lstnew(files));
-    t_list *dir = getDirectories(files);
-    print_list(dir, print_string);
-    while (dir) {
-        t_file *current = (t_file*)dir->content;
-        ft_lstadd_back(&dirFiles, loopDiscovery(dirFiles, current->path));
-        dir = dir->next;
+t_list *getDirectoriesHidden(t_list *files) {
+    t_list *tmp = files;
+    t_list *dir = NULL;
+    while (tmp) {
+        t_file *file = (t_file *)tmp->content;
+        if (file->name[0] == '.')
+            continue ;
+        if (S_ISDIR(file->st.st_mode))
+        {
+            ft_lstadd_back(&dir, ft_lstnew(file));
+        }
+        tmp = tmp->next;
     }
-    return dirFiles;
+
+    return dir;
 }
 
-void dirDiscovery(t_cmd *cmd) {
-    t_list *tmp = cmd->dirList;
-
-    if (tmp == NULL) {
-        print_list(getFiles("."), print_file);
+t_list *loopDiscovery(t_list **dirFiles, char *dirName, bool hidden) {
+    t_list *files = getFiles(dirName);
+    t_list *dir = NULL;
+    if (hidden) {
+        dir = getDirectories(files);
+    } else {
+        dir = getDirectoriesHidden(files);
     }
-    else {
+    print_list(dir, print_file);
+    if (ft_lstsize(dir) > 0) {
+        while (dir) {
+            t_file *current = (t_file*)dir->content;
+            ft_lstadd_back(dirFiles, loopDiscovery(dirFiles, current->path, hidden));
+            ft_printf("Size of arch (subdir) = %d\n", ft_lstsize(*dirFiles));
+            dir = dir->next;
+        }
+    }
+    return files;
+}
+
+/*
+    Return une t_list * de t_file * 
+*/
+t_list *dirDiscovery(t_cmd *cmd) {
+    t_list *tmp = cmd->dirList;
+    t_list *arch = NULL;
+    if (tmp == NULL) {
+        // print_list(getFiles("."), print_file);
+        // return getFiles(".");
+        t_list *DefaultContent = ft_lstnew(".");
+        print_list(DefaultContent, print_string);
+        tmp = DefaultContent;
+    }
+    // else {
         while(tmp) {
-            // t_list *files = getFiles((char *)tmp->content);
-            // print_list(files, print_file);
             if (cmd->opt->recursive) {
-                t_list *arch = NULL;
-                loopDiscovery(arch, (char *)tmp->content);
-                // print_list(loopDiscovery(arch, (char *)tmp->content), print_file);
+                // L'option ajoute les fichiers qui commencent par '.'
+                t_list *files = loopDiscovery(
+                    &arch,
+                    (char *)tmp->content,
+                    cmd->opt->h_file
+                );
+                ft_lstadd_back(&arch, files);
+                ft_printf("Size of arch = %d\n", ft_lstsize(arch));
+                print_list(arch, print_ls_long);
+                return arch;
+            } else {
+                t_list *files = getFiles((char *)tmp->content);
+                print_list(files, print_file);
+                return files;
             }
             tmp = tmp->next;
         }
-    }
-    return;
+    // }
+    return NULL;
 }

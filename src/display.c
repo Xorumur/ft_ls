@@ -59,3 +59,14 @@ void    print_list(t_list *list, void (*print_content)(void *))
         tmp = tmp->next;
     }
 }
+
+
+
+// void displayFiles(t_cmd *cmd, t_list *files, bool isRecursive) {
+//     if (isRecursive) {
+
+//     }
+//     else {
+
+//     }
+// }

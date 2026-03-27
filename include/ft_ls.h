@@ -43,12 +43,28 @@ typedef struct s_file {
     struct stat st;
 } t_file;
 
+typedef struct s_arch {
+    char *dirName;
+    t_list *files;
+    struct s_arch *next;
+} t_arch;
+
 // Libft Functions
 int ft_strlen(char *string);
 bool contains(char *av, char c);
 
 int parse_arg(t_cmd *cmd, char **av);
-void dirDiscovery(t_cmd *cmd);
+t_list *dirDiscovery(t_cmd *cmd);
+
+t_list *getFiles(char *dirName);
+t_list *getDirectories(t_list *files);
+t_list *getDirectoriesHidden(t_list *files);
+
+t_arch  *arch_new(char *dir_name);
+t_arch  *arch_last(t_arch *arch);
+int     arch_size(t_arch *arch);
+void    arch_pushback(t_arch **arch, t_arch *new_node);
+void    arch_add_files(t_arch *arch, t_list *files);
 
 // Debug
 void printOpt(const t_opt *opt);
@@ -56,4 +72,8 @@ void ErrOptNotFound(char c);
 void print_string(void *content);
 void print_file(void *content);
 void print_list(t_list *list, void (*print_content)(void *));
+
+// printer
+void    print_ls_long(void *content);
+
 #endif
