@@ -74,7 +74,7 @@ t_list *getDirectoriesHidden(t_list *files) {
     return dir;
 }
 
-t_list *loopDiscovery(t_list **dirFiles, char *dirName, bool hidden) {
+t_list *loopDiscovery(t_list **dirFiles, t_arch **archRoot, char *dirName, bool hidden) {
     t_list *files = getFiles(dirName);
     t_list *dir = NULL;
     if (hidden) {
@@ -82,12 +82,20 @@ t_list *loopDiscovery(t_list **dirFiles, char *dirName, bool hidden) {
     } else {
         dir = getDirectoriesHidden(files);
     }
-    print_list(dir, print_file);
+    // print_list(files, print_file);
+    buildArch(archRoot, dir);
+    print_list(dir, print_fileName);
     if (ft_lstsize(dir) > 0) {
         while (dir) {
             t_file *current = (t_file*)dir->content;
-            ft_lstadd_back(dirFiles, loopDiscovery(dirFiles, current->path, hidden));
-            ft_printf("Size of arch (subdir) = %d\n", ft_lstsize(*dirFiles));
+            t_list *filesDiscovered = loopDiscovery(
+                dirFiles,
+                archRoot,
+                current->path,
+                hidden
+            );
+            archAddFiles(getArchNodeByDirName(*archRoot, current->name), files);
+            ft_lstadd_back(dirFiles, filesDiscovered);
             dir = dir->next;
         }
     }
@@ -100,6 +108,7 @@ t_list *loopDiscovery(t_list **dirFiles, char *dirName, bool hidden) {
 t_list *dirDiscovery(t_cmd *cmd) {
     t_list *tmp = cmd->dirList;
     t_list *arch = NULL;
+    t_arch *archNode = NULL;
     if (tmp == NULL) {
         // print_list(getFiles("."), print_file);
         // return getFiles(".");
@@ -108,17 +117,20 @@ t_list *dirDiscovery(t_cmd *cmd) {
         tmp = DefaultContent;
     }
     // else {
+        t_list *dirTarget = malloc(sizeof(t_list));
+        dirTarget->content = tmp->content;
+        dirTarget->next = NULL;
         while(tmp) {
             if (cmd->opt->recursive) {
                 // L'option ajoute les fichiers qui commencent par '.'
                 t_list *files = loopDiscovery(
                     &arch,
+                    &archNode,
                     (char *)tmp->content,
                     cmd->opt->h_file
                 );
                 ft_lstadd_back(&arch, files);
-                ft_printf("Size of arch = %d\n", ft_lstsize(arch));
-                print_list(arch, print_ls_long);
+                print_arch(archNode);
                 return arch;
             } else {
                 t_list *files = getFiles((char *)tmp->content);

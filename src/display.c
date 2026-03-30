@@ -48,6 +48,17 @@ void    print_file(void *content)
     printf("------------------\n");
 }
 
+void print_fileName(void *content)
+{
+    t_file *file = (t_file*)content;
+    if (!file)
+    {
+        ft_printf("FILE: NULL\n");
+        return;
+    }
+    ft_printf("%s\n", file->name);
+}
+
 void    print_list(t_list *list, void (*print_content)(void *))
 {
     t_list  *tmp;
@@ -60,13 +71,27 @@ void    print_list(t_list *list, void (*print_content)(void *))
     }
 }
 
+void    print_arch(t_arch *arch)
+{
+    int     idx;
+    t_arch  *current;
 
+    if (!arch)
+    {
+        ft_printf("ARCH: (null)\n");
+        return;
+    }
+    idx = 0;
+    current = arch;
+    while (current)
+    {
+        ft_printf("\n[%d] %s\n", idx, current->dirName);
+        if (current->files)
+            print_list(current->files, print_fileName);
+        else
+            ft_printf("(no files)\n");
+        current = current->sub;
+        idx++;
+    }
+}
 
-// void displayFiles(t_cmd *cmd, t_list *files, bool isRecursive) {
-//     if (isRecursive) {
-
-//     }
-//     else {
-
-//     }
-// }
