@@ -62,8 +62,10 @@ int		ft_isalpha(int c);
 int		ft_isalnum(int c);
 void	*ft_calloc(size_t count, size_t size);
 void	ft_bzero(void *s, size_t n);
-
-
+int     ft_strcmp(const char *s1, const char *s2);
+void    free_tab(char **tab);
+void    print_tab(char **tab);
+int     size_tab(char **tab);
 t_list  *ft_lstnew(void *content);
 void    ft_lstadd_front(t_list **alst, t_list *new);
 void    ft_lstadd_back(t_list **alst, t_list *new);
