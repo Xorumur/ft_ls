@@ -61,9 +61,6 @@ t_list *getDirectories(t_list *files);
 t_list *getDirectoriesHidden(t_list *files);
 
 t_arch  *arch_new(char *dir_name);
-t_arch  *arch_last(t_arch *arch);
-int     arch_size(t_arch *arch);
-void    arch_pushback(t_arch **arch, t_arch *new_node);
 void    archAddFiles(t_arch *arch, t_list *files);
 void    arch_happend_child(t_arch **root, char *path, char *dirName, t_list *files);
 void    buildArch(t_arch **root, t_list *dir);

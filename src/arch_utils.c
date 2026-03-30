@@ -20,43 +20,6 @@ t_arch	*arch_new(char *dir_name)
 	return (node);
 }
 
-t_arch	*arch_last(t_arch *arch)
-{
-	if (!arch)
-		return (NULL);
-	while (arch->sub)
-		arch = arch->sub;
-	return (arch);
-}
-
-int	arch_size(t_arch *arch)
-{
-	int	size;
-
-	size = 0;
-	while (arch)
-	{
-		size++;
-		arch = arch->sub;
-	}
-	return (size);
-}
-
-void	arch_pushback(t_arch **arch, t_arch *new_node)
-{
-	t_arch	*last;
-
-	if (!arch || !new_node)
-		return ;
-	if (!*arch)
-	{
-		*arch = new_node;
-		return ;
-	}
-	last = arch_last(*arch);
-	last->sub = new_node;
-}
-
 void	archAddFiles(t_arch *arch, t_list *files)
 {
 	if (!arch)
