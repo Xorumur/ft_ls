@@ -84,7 +84,8 @@ t_list *loopDiscovery(t_list **dirFiles, t_arch **archRoot, char *dirName, bool 
     }
     // print_list(files, print_file);
     buildArch(archRoot, dir);
-    print_list(dir, print_fileName);
+    insertFilesInArch(*archRoot, files);
+    // print_list(dir, print_fileName);
     if (ft_lstsize(dir) > 0) {
         while (dir) {
             t_file *current = (t_file*)dir->content;
@@ -94,7 +95,7 @@ t_list *loopDiscovery(t_list **dirFiles, t_arch **archRoot, char *dirName, bool 
                 current->path,
                 hidden
             );
-            archAddFiles(getArchNodeByDirName(*archRoot, current->name), files);
+            // archAddFiles(getArchNodeByDirName(*archRoot, current->name), files);
             ft_lstadd_back(dirFiles, filesDiscovered);
             dir = dir->next;
         }

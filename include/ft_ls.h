@@ -68,6 +68,7 @@ void    archAddFiles(t_arch *arch, t_list *files);
 void    arch_happend_child(t_arch **root, char *path, char *dirName, t_list *files);
 void    buildArch(t_arch **root, t_list *dir);
 t_arch *getArchNodeByDirName(t_arch *root, char *dirName);
+t_arch *insertFilesInArch(t_arch *arch, t_list *files);
 // Debug
 void printOpt(const t_opt *opt);
 void ErrOptNotFound(char c);

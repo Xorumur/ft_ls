@@ -64,6 +64,19 @@ void	archAddFiles(t_arch *arch, t_list *files)
 	arch->files = files;
 }
 
+void archPushBackFiles(t_arch *arch, t_list *files) {
+	if (!arch)
+		return ;
+	if (!arch->files) {
+		arch->files = files;
+		return ;
+	}
+	t_list *last = arch->files;
+	while (last->next)
+		last = last->next;
+	last->next = files;
+}
+
 t_arch *getArchNodeByDirName(t_arch *root, char *dirName) {
     while (root) {
         if (ft_strcmp(root->dirName, dirName) == 0) {
@@ -72,6 +85,21 @@ t_arch *getArchNodeByDirName(t_arch *root, char *dirName) {
         root = root->sub;
     }
     return NULL;
+}
+
+t_arch *insertFilesInArch(t_arch *arch, t_list *files) {
+	t_arch *node = NULL;
+	t_arch *cursor = arch;
+	t_list *tmpFiles = files;
+	while (tmpFiles) {
+		t_file *file = (t_file *)tmpFiles->content;
+		char **pathParts = ft_split(file->path, '/');
+		cursor = getArchNodeByDirName(cursor, pathParts[size_tab(pathParts) - 2]);
+		archPushBackFiles(cursor, ft_lstnew(file));
+		free_tab(pathParts);
+		tmpFiles = tmpFiles->next;
+	}
+	return node;
 }
 
 void buildArch(t_arch **root, t_list *dir) {
